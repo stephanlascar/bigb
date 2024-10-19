@@ -36,6 +36,9 @@ def get_website_description(url: str) -> Optional[str]:
         soup = BeautifulSoup(response.text, 'html.parser')
         description_tag = soup.find('meta', attrs={'name': 'description'})
 
+        if description_tag is None:
+            description_tag = soup.find('meta', attrs={'name': 'og:description'})
+
         if not description_tag:
             return None
 
@@ -48,12 +51,14 @@ def save_log_event(body: AddLogEventModel):
     with psycopg.connect(DATABASE_URI) as conn:
         with conn.cursor() as cursor:
             cursor.execute(
-                "INSERT INTO event_log (device_id, local_datetime, title, url, description) VALUES (%s, %s, %s, %s, %s)",
+                "INSERT INTO event_log (device_id, local_datetime, title, url, incognito, description) "
+                "VALUES (%s, %s, %s, %s, %s, %s)",
                 (
                     body.id,
                     get_log_event_local_datetime(body.date, body.timezone),
                     body.title,
                     body.url,
+                    body.incognito,
                     get_website_description(body.url)
                 ))
 

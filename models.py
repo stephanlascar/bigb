@@ -8,4 +8,5 @@ class AddLogEventModel(BaseModel):
     timezone: str
     title: Optional[str]
     url: str
+    incognito: Optional[bool] = False
     date: str
