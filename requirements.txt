@@ -8,3 +8,4 @@ pytz==2024.2
 Flask-Executor==1.0.0
 beautifulsoup4==4.12.3
 requests==2.32.3
+flask-crontab==0.1.2

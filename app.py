@@ -8,6 +8,7 @@ import psycopg
 import pytz
 from flask import Flask, request
 from flask_cors import CORS
+from flask_crontab import Crontab
 from flask_pydantic import validate
 from flask_executor import Executor
 
@@ -19,6 +20,7 @@ API_KEY = os.environ.get("API_KEY", "You will never guess!")
 app = Flask(__name__)
 CORS(app)
 executor = Executor(app)
+crontab = Crontab(app)
 
 
 def get_log_event_local_datetime(date: str, timezone: str) -> datetime:
@@ -72,6 +74,16 @@ def save_log_event(body: AddLogEventModel):
                 ))
 
             conn.commit()
+
+
+@crontab.job(minute="*/14")
+def my_scheduled_job():
+    requests.get("https://bigb-klfw.onrender.com/")
+
+
+@app.route('/health')
+def health():
+    return "", 200
 
 
 @app.route('/')
