@@ -25,4 +25,6 @@ def add_log_event(body: AddLogEventModel):
                 "INSERT INTO event_log (device_id, local_datetime, title, url) VALUES (%s, %s, %s, %s)",
                 (body.id, body.date, body.title, body.url))
 
+            conn.commit()
+
     return "", 201
