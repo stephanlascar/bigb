@@ -19,7 +19,7 @@ def hello_world():
 @app.route('/api/events/logs/add')
 @validate()
 def add_log_event(body: AddLogEventModel):
-    with psycopg.connect("postgresql://user:user_password@db_server_hostname:5432") as conn:
+    with psycopg.connect(DATABASE_URI) as conn:
         with conn.cursor() as cursor:
             cursor.execute(
                 "INSERT INTO event_log (device_id, local_datetime, title, url) VALUES (%s, %s, %s, %s)",
