@@ -31,18 +31,27 @@ def get_log_event_local_datetime(date: str, timezone: str) -> datetime:
 
 
 def get_website_description(url: str) -> Optional[str]:
+    attributes = [
+        {'name': 'description'},
+        {'name': 'Description'},
+        {'property': 'description'},
+        {'property': 'Description'},
+        {'name': 'og:description'},
+        {'name': 'og:Description'},
+        {'property': 'og:description'},
+        {'property': 'og:Description'},
+    ]
+
     try:
         response = requests.get(url if url.startswith('http') else f'http://{url}')
         soup = BeautifulSoup(response.text, 'html.parser')
-        description_tag = soup.find('meta', attrs={'name': 'description'})
 
-        if description_tag is None:
-            description_tag = soup.find('meta', attrs={'name': 'og:description'})
+        for attribute in attributes:
+            description_tag = soup.find('meta', attrs=attribute)
+            if description_tag and description_tag.get('content'):
+                return description_tag.get('content')
 
-        if not description_tag:
-            return None
-
-        return description_tag.get('content')
+        return None
     except:
         return None
 
