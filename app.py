@@ -16,7 +16,7 @@ def hello_world():
     return 'Hello World!'
 
 
-@app.route('/api/events/logs/add')
+@app.route('/api/events/logs/add', methods=['POST'])
 @validate()
 def add_log_event(body: AddLogEventModel):
     with psycopg.connect(DATABASE_URI) as conn:
