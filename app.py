@@ -14,7 +14,6 @@ from flask_executor import Executor
 from models import AddLogEventModel
 
 DATABASE_URI = os.environ.get("DATABASE_URL")
-DATABASE_URI = "postgresql://bigb_user:HSWUnTa1t1SITdWyN8l5xr3qytesGzTE@dpg-cs9rvhjqf0us739m3ldg-a.frankfurt-postgres.render.com/bigb"
 API_KEY = os.environ.get("API_KEY", "You will never guess!")
 
 app = Flask(__name__)
