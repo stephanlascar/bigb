@@ -1,0 +1,486 @@
+openapi: 3.0.3
+info:
+  title: Interface API GUN2 – Opérateurs économiques
+  description: Interface API exposée par GUN2 aux opérateurs économiques pour le dédouanement à l'exportation (Delta-IE)
+  version: 1.0.0
+  contact:
+    name: DGDDI - Douane Française
+    url: https://www.douane.gouv.fr/
+tags:
+  - name: Opérateurs vers DeltaIE
+paths:
+  /IE511:
+    post:
+      tags:
+        - Opérateurs vers DeltaIE
+      summary: pour la création d'une déclaration d'exportation
+      description: pour la création d'une déclaration d'exportation
+      operationId: messageIE511
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CC511BType"
+      responses:
+        "200":
+          description: "Message envoyé avec succès"
+        "400":
+          description: "Erreur fonctionnelle sur les données nécessaires à la bonne prise en compte du message par la plateforme d'échange de l opérateur EDI : trame incomplète par exemple."
+        "401":
+          description: "Erreur d'authentification"
+        "404":
+          description: "URL inconnue."
+        "500":
+          description: "Erreur technique survenue ne permettant pas de prendre en compte la demande. L'erreur ne dépend pas du type de message."
+
+components:
+  schemas:
+    CC511BType:
+      type: object
+      properties:
+        messageSender:
+          type: string
+          description: Expéditeur
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        messageRecipient:
+          type: string
+          description: Destinataire
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        preparationDateAndTime:
+          type: string
+          description: Date et heure de préparation
+          minLength: 19
+          maxLength: 19
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}
+        messageIdentification:
+          type: string
+          description: Identification du message
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        messageType:
+          type: string
+          description: Type de message
+          minLength: 6
+          maxLength: 6
+          pattern: ^[a-zA-Z0-9]{6}
+        correlationIdentifier:
+          type: string
+          description: Identifiant de corrélation
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        ExportOperation:
+          $ref: "#/components/schemas/MExportOperationType"
+        CustomsOfficeOfPresentation:
+          $ref: "#/components/schemas/CustomsOfficeOfPresentationType"
+        CustomsOfficeOfExport:
+          $ref: "#/components/schemas/CustomsOfficeOfExportType"
+        Declarant:
+          $ref: "#/components/schemas/MDeclarantType"
+        Representative:
+          $ref: "#/components/schemas/MRepresentativeType"
+        GoodsShipment:
+          $ref: "#/components/schemas/MGoodsShipmentType"
+      required:
+        - messageSender
+        - messageRecipient
+        - preparationDateAndTime
+        - messageIdentification
+        - messageType
+        - ExportOperation
+        - CustomsOfficeOfPresentation
+        - CustomsOfficeOfExport
+        - Declarant
+        - GoodsShipment
+
+    SequenceNrContentType:
+      type: number
+      description: Numéro de séquence
+      maxLength: 5
+      pattern: ^[0-9]{1,5}
+
+    IdentificationNumber:
+      type: string
+      description: Numéro d'identification
+      maxLength: 17
+      pattern: ^[a-zA-Z0-9]{1,17}
+
+    MAddressType:
+      type: object
+      description: Adresse
+      properties:
+        streetAndNumber:
+          type: string
+          description: Adresse / Numéro et rue
+          maxLength: 70
+          pattern: ^.{1,70}
+        postcode:
+          type: string
+          description: Adresse / Code postal
+          maxLength: 17
+          pattern: ^.{1,17}
+        city:
+          type: string
+          description: Adresse / Ville
+          maxLength: 35
+          pattern: ^.{1,35}
+        country:
+          type: string
+          description: Adresse / Pays
+          minLength: 2
+          maxLength: 2
+          pattern: ^[A-Z]{2}
+      required:
+        - streetAndNumber
+        - city
+        - country
+
+    MContactPersonType:
+      type: object
+      description: Personne à contacter
+      properties:
+        name:
+          type: string
+          description: Personne à contacter / Nom de la personne
+          maxLength: 70
+          pattern: ^.{1,70}
+        phoneNumber:
+          type: string
+          description: Personne à contacter / Numéro de téléphone
+          maxLength: 35
+          pattern: ^.{1,35}
+        eMailAddress:
+          type: string
+          description: Personne à contacter / Adresse e-mail
+          maxLength: 256
+          pattern: ^[^@]+@[^\.]+\..+
+      required:
+        - name
+        - phoneNumber
+
+    #######################################################
+
+    MExportOperationType:
+      type: object
+      description: Opération d'exportation
+      properties:
+        LRN:
+          type: string
+          description: Numéro de référence interne
+          maxLength: 22
+          pattern: ^[a-zA-Z0-9]{1,22}
+        customsRegistrationNumber:
+          type: string
+          description: Numéro douane de la déclaration
+          minLength: 18
+          maxLength: 18
+          pattern: ^[0-9]{2}[A-Z]{2}[A-Z0-9]{12}[A-E]{1}[0-9]
+      required:
+        - LRN
+        - customsRegistrationNumber
+
+    CustomsOfficeOfPresentationType:
+      type: object
+      description: Bureau de présentation
+      properties:
+        referenceNumber:
+          type: string
+          description: Bureau de présentation / Code bureau
+          minLength: 8
+          maxLength: 8
+          pattern: ^[A-Z]{2}[A-Z0-9]{6}
+      required:
+        - referenceNumber
+
+    CustomsOfficeOfExportType:
+      type: object
+      description: Bureau de douane d'exportation
+      properties:
+        referenceNumber:
+          type: string
+          description: Bureau de douane d'exportation /  Code bureau
+          minLength: 8
+          maxLength: 8
+          pattern: ^[A-Z]{2}[A-Z0-9]{8}
+      required:
+        - referenceNumber
+
+    MDeclarantType:
+      type: object
+      description: Déclarant
+      properties:
+        identificationNumber:
+          $ref: "#/components/schemas/IdentificationNumber"
+        name:
+          type: string
+          description: Déclarant / Nom
+          maxLength: 70
+          pattern: ^.{1,70}
+        Address:
+          $ref: "#/components/schemas/MAddressType"
+        ContactPerson:
+          $ref: "#/components/schemas/MContactPersonType"
+
+    MRepresentativeType:
+      type: object
+      description: Représentant
+      properties:
+        identificationNumber:
+          $ref: "#/components/schemas/IdentificationNumber"
+        status:
+          type: string
+          description: Représentant / Code du statut du représentant
+          minLength: 1
+          maxLength: 1
+          pattern: ^[0-9]{1}
+        ContactPerson:
+          $ref: "#/components/schemas/MContactPersonType"
+      required:
+        - identificationNumber
+        - status
+
+    #-----------------------------------------------------------------------#
+
+    MGoodsShipmentType:
+      type: object
+      description: Données du segment général
+      properties:
+        Consignment:
+          $ref: "#/components/schemas/MConsignmentType"
+      required:
+        - Consignment
+
+    #-----------------------------------------------------------------------#
+
+    MConsignmentType:
+      type: object
+      description: Transport
+      properties:
+        containerIndicator:
+          type: number
+          description: Indicateur du conteneur
+          minLength: 1
+          maxLength: 1
+          pattern: ^[0-9]{1}
+        inlandModeOfTransport:
+          type: number
+          description: Mode de transport intérieur
+          minLength: 1
+          maxLength: 1
+          pattern: ^[0-9]{1}
+        TransportEquipment:
+          type: array
+          maxItems: 9999
+          items:
+            $ref: "#/components/schemas/MTransportEquipmentType"
+        LocationOfGoods:
+          $ref: "#/components/schemas/MLocationOfGoodsType"
+        DepartureTransportMeans:
+          type: array
+          maxItems: 999
+          items:
+            $ref: "#/components/schemas/MDepartureTransportMeansType"
+      required:
+        - LocationOfGoods
+
+    MTransportEquipmentType:
+      type: object
+      description: Equipement de transport
+      properties:
+        sequenceNumber:
+          $ref: "#/components/schemas/SequenceNrContentType"
+        containerIdentificationNumber:
+          type: string
+          description: Equipement de transport / Numéro du conteneur
+          maxLength: 17
+          pattern: ^[a-zA-Z0-9]{1,17}
+        numberOfSeals:
+          type: number
+          description: Equipement de transport / Nombre de scellés
+          maxLength: 4
+          pattern: ^[0-9]{1,4}
+        Seal:
+          type: array
+          maxItems: 99
+          items:
+            $ref: "#/components/schemas/MSealType"
+        GoodsReference:
+          type: array
+          maxItems: 999
+          items:
+            $ref: "#/components/schemas/MGoodsReferenceType"
+      required:
+        - sequenceNumber
+        - numberOfSeals
+
+    MSealType:
+      type: object
+      description: Scellé
+      properties:
+        sequenceNumber:
+          $ref: "#/components/schemas/SequenceNrContentType"
+        identifier:
+          type: string
+          description: Scellé / Identifiant
+          maxLength: 20
+          pattern: ^[a-zA-Z0-9]{1,20}
+      required:
+        - sequenceNumber
+        - identifier
+
+    MGoodsReferenceType:
+      type: object
+      description: Référence des marchandises
+      properties:
+        sequenceNumber:
+          $ref: "#/components/schemas/SequenceNrContentType"
+        declarationGoodsItemNumber:
+          type: string
+          description: Référence des marchandises / Numéro d'article de marchandises dans la déclaration
+          maxLength: 5
+          pattern: ^[1-9]{1}[0-9]{0,4}
+      required:
+        - sequenceNumber
+        - declarationGoodsItemNumber
+
+    MLocationOfGoodsType:
+      type: object
+      description: Localisation des marchandises
+      properties:
+        typeOfLocation:
+          type: string
+          description: Localisation des marchandises / Type de lieu
+          minLength: 1
+          maxLength: 1
+          pattern: ^[a-zA-Z]{1}
+        qualifierOfIdentification:
+          type: string
+          description: Localisation des marchandises / Code d'identification
+          minLength: 1
+          maxLength: 1
+          pattern: ^[a-zA-Z]{1}
+        authorisationNumber:
+          type: string
+          description: Localisation des marchandises / Numéro d'autorisation
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        additionalIdentifier:
+          type: string
+          description: Localisation des marchandises / Identifiant additionnel
+          maxLength: 4
+          pattern: ^[a-zA-Z0-9]{1,4}
+        UNLocode:
+          type: string
+          description: Localisation des marchandises / LOCODE ONU
+          maxLength: 17
+          pattern: ^[a-zA-Z0-9]{1,17}
+        CustomsOffice:
+          $ref: "#/components/schemas/MCustomsOfficeType"
+        GNSS:
+          $ref: "#/components/schemas/MGpsType"
+        EconomicOperator:
+          $ref: "#/components/schemas/MEconomicOperatorType"
+        Address:
+          $ref: "#/components/schemas/MAddressType"
+        PostcodeAddress:
+          $ref: "#/components/schemas/MPostcodeAddressType"
+        ContactPerson:
+          $ref: "#/components/schemas/MContactPersonType"
+      required:
+        - typeOfLocation
+        - qualifierOfIdentification
+
+    MCustomsOfficeType:
+      type: object
+      description: Bureau de douane
+      properties:
+        referenceNumber:
+          type: string
+          description: Bureau de douane / Code bureau
+          minLength: 8
+          maxLength: 8
+          pattern: ^[A-Z]{2}[A-Z0-9]{6}
+      required:
+        - referenceNumber
+
+    MGpsType:
+      type: object
+      description: GNSS
+      properties:
+        latitude:
+          type: string
+          description: GNSS / Latitude
+          maxLength: 17
+          pattern: ^[+-]?([0-8]?[0-9]\.[0-9]{5,7}|90.000000?0?)
+        longitude:
+          type: string
+          description: GNSS / Longitude
+          maxLength: 17
+          pattern: ^[+-]?([0-8]?[0-9]\.[0-9]{5,7}|90.000000?0?)
+      required:
+        - latitude
+        - longitude
+
+    MEconomicOperatorType:
+      type: object
+      description: Opérateur économique
+      properties:
+        identificationNumber:
+          $ref: "#/components/schemas/IdentificationNumber"
+      required:
+        - identificationNumber
+
+    MPostcodeAddressType:
+      type: object
+      description: Adresse postale
+      properties:
+        houseNumber:
+          type: string
+          description: Adresse postale / Numéro d'habitation
+          maxLength: 17
+          pattern: ^.{1,17}
+        postcode:
+          type: string
+          description: Adresse postale / Code postal
+          maxLength: 17
+          pattern: ^.{1,17}
+        country:
+          type: string
+          description: Adresse postale / Pays
+          minLength: 2
+          maxLength: 2
+          pattern: ^[A-Z]{2}
+      required:
+        - postcode
+        - country
+
+    MDepartureTransportMeansType:
+      type: object
+      description: Moyen de transport au départ
+      properties:
+        sequenceNumber:
+          description: Moyen de transport au départ / Numéro de séquence
+          $ref: "#/components/schemas/SequenceNrContentType"
+        typeOfIdentification:
+          type: number
+          description: Moyen de transport au départ / Type d'identification
+          minLength: 2
+          maxLength: 2
+          pattern: ^[0-9]{2}
+        identificationNumber:
+          type: string
+          description: Moyen de transport au départ / Numéro d'identification
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        nationality:
+          type: string
+          description: Moyen de transport au départ / Nationalité
+          minLength: 2
+          maxLength: 2
+          pattern: ^[A-Z]{2}
+      required:
+        - sequenceNumber
+        - typeOfIdentification
+        - identificationNumber
+        - nationality

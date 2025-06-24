@@ -1,0 +1,303 @@
+openapi: 3.0.3
+info:
+  title: API Façade GUN (DeltaIE) vers EDI
+  description: API Façade GUN (DeltaIE) vers EDI
+  version: 0.0.4
+servers:
+  - url: /
+tags:
+  - name: DeltaIE vers Opérateurs
+paths:
+  /IE556:
+    post:
+      tags:
+        - DeltaIE vers Opérateurs
+      summary: Rejection_IE556 / General negative response from office of export
+      description: Rejection_IE556 / General negative response from office of export
+      operationId: messageIE556
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CC556BType"
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Réponse OK
+        "400":
+          description: "Erreur fonctionnelle sur les données nécessaires à la bonne prise en compte du message par la plateforme d’échange de l opérateur EDI : trame incomplète par exemple."
+components:
+  schemas:
+    ##########################################################
+    ################## MESSAGE RETOUR IE556 ##################
+    ##########################################################
+    CC556BType:
+      type: object
+      description: General negative response from office of export
+      properties:
+        messageSender:
+          type: string
+          description: Expéditeur
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        messageRecipient:
+          type: string
+          description: Destinataire
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        preparationDateAndTime:
+          type: string
+          description: Date et heure de préparation
+          minLength: 19
+          maxLength: 19
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}
+        messageIdentification:
+          type: string
+          description: Identification du message
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        messageType:
+          type: string
+          description: Type de message
+          minLength: 6
+          maxLength: 6
+          pattern: ^[a-zA-Z0-9]{6}
+        correlationIdentifier:
+          type: string
+          description: Identifiant de corrélation
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+
+        ExportOperation:
+          type: array
+          maxItems: 99
+          items:
+            $ref: "#/components/schemas/MExportOperationType"
+
+        CustomsOfficeOfExport:
+          $ref: "#/components/schemas/MCustomsOfficeOfExportType"
+
+        Declarant:
+          $ref: "#/components/schemas/MDeclarantType"
+
+        Representative:
+          $ref: "#/components/schemas/MRepresentativeType"
+
+        DeclarationStatus:
+          $ref: "#/components/schemas/MDeclarationStatusType"
+
+        FunctionalError:
+          type: array
+          minItems: 1
+          maxItems: 9999
+          items:
+            $ref: "#/components/schemas/MFunctionalErrorType"
+
+      required:
+        - ExportOperation
+        - Declarant
+
+    MExportOperationType:
+      type: object
+      description: Opération d'exportation
+      properties:
+        sequenceNumber:
+          $ref: "#/components/schemas/SequenceNrContentType"
+        LRN:
+          type: string
+          description: Numéro de référence interne
+          maxLength: 22
+          pattern: ^[a-zA-Z0-9]{1,22}
+        MRN:
+          type: string
+          description: MRN
+          minLength: 18
+          maxLength: 18
+          pattern: ^[0-9]{2}[A-Z]{2}[A-Z0-9]{12}[A-E]{1}[0-9]
+        businessRejectionType:
+          type: string
+          description: Type de rejet
+          minLength: 3
+          maxLength: 3
+          pattern: ^[a-zA-Z0-9]{3}
+        rejectionDateAndTime:
+          type: string
+          description: Date et heure de rejet
+          minLength: 19
+          maxLength: 19
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}
+        rejectionCode:
+          type: string
+          description: Code de rejet
+          maxLength: 2
+          pattern: ^[0-9]{1,2}
+        rejectionReason:
+          type: string
+          description: Motif de rejet
+          maxLength: 512
+          pattern: ^.{1,512}
+
+      required:
+        - sequenceNumber
+        - MRN
+        - businessRejectionType
+        - rejectionDateAndTime
+        - rejectionCode
+        - rejectionReason
+
+    SequenceNrContentType:
+      type: string
+      description: Numéro de séquence
+      minLength: 1
+      maxLength: 5
+      pattern: ^[0-9]{1,5}
+
+    MCustomsOfficeOfExportType:
+      type: object
+      description: Bureau de douane d’exportation
+      properties:
+        referenceNumber:
+          type: string
+          description: Bureau de douane d’exportation / Code bureau
+          minLength: 8
+          maxLength: 8
+          pattern: ^[A-Z]{2}[A-Z0-9]{6}
+      required:
+        - referenceNumber
+
+    MDeclarantType:
+      type: object
+      description: Déclarant
+      properties:
+        identificationNumber:
+          $ref: "#/components/schemas/MIdentificationNumberType"
+        name:
+          type: string
+          description: Déclarant / Nom
+          maxLength: 70
+          pattern: ^.{1,70}
+        Address:
+          $ref: "#/components/schemas/MAddressType01"
+      required:
+        - identificationNumber
+
+    MRepresentativeType:
+      type: object
+      description: Représentant
+      properties:
+        identificationNumber:
+          $ref: "#/components/schemas/MIdentificationNumberType"
+        status:
+          type: string
+          description: Représentant / Code du statut du représentant
+          minLength: 1
+          maxLength: 1
+          pattern: ^[0-9]{1}
+      required:
+        - status
+
+    MIdentificationNumberType:
+      type: string
+      description: Numéro d’identification
+      maxLength: 17
+      pattern: ^[a-zA-Z0-9]{1,17}
+
+    MAddressType01:
+      type: object
+      description: Adresse
+      properties:
+        streetAndNumber:
+          type: string
+          description: Adresse / Numéro et rue
+          minLength: 1
+          maxLength: 70
+          pattern: ^.{1,70}
+        postcode:
+          type: string
+          description: Adresse / Code postal
+          maxLength: 17
+          pattern: ^.{1,17}
+        city:
+          type: string
+          description: Adresse / Ville
+          minLength: 1
+          maxLength: 35
+          pattern: ^.{1,35}
+        country:
+          type: string
+          description: Adresse / Pays
+          minLength: 2
+          maxLength: 2
+          pattern: ^[A-Z]{2}
+      required:
+        - streetAndNumber
+        - city
+        - country
+
+    MDeclarationStatusType:
+      type: object
+      description: Etat de la déclaration
+      properties:
+        state:
+          type: string
+          description: Etat de la déclaration / Code état
+          minLength: 1
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        stateDateTime:
+          type: string
+          description: Etat de la déclaration / Date état
+          minLength: 19
+          maxLength: 19
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}
+        event:
+          type: string
+          description: Etat de la déclaration / Evènement
+          minLength: 1
+          maxLength: 260
+          pattern: ^.{1,260}
+      required:
+        - state
+
+    MFunctionalErrorType:
+      type: object
+      description: Erreur fonctionnelle
+      properties:
+        sequenceNumber:
+          type: string
+          description: Numéro d'ordre
+          minLength: 1
+          maxLength: 5
+          pattern: ^[0-9]{1,5}
+        errorPointer:
+          type: string
+          description: Curseur d'erreur
+          maxLength: 512
+          pattern: ^.{1,512}
+        errorCode:
+          type: string
+          description: Code d'erreur
+          minLength: 2
+          maxLength: 2
+          pattern: ^[1-9]{2}
+        errorReason:
+          type: string
+          description: Motif d'erreur
+          minLength: 1
+          maxLength: 7
+          pattern: ^[a-zA-Z0-9]{1,7}
+        originalAttributeValue:
+          type: string
+          description: Valeur d'attribut d'origine
+          minLength: 1
+          maxLength: 512
+          pattern: ^.{1,512}
+      required:
+        - sequenceNumber
+        - errorPointer
+        - errorCode
+        - errorReason

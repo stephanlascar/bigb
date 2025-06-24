@@ -1,0 +1,838 @@
+openapi: 3.0.3
+info:
+  title: API Façade GUN (DeltaIE) vers EDI
+  description: API Façade GUN (DeltaIE) vers EDI - Version EMCS 4.0
+  version: 0.0.4
+servers:
+  - url: /
+tags:
+  - name: DeltaIE vers Opérateurs
+paths:
+  /FRA104:
+    post:
+      tags:
+        - DeltaIE vers Opérateurs
+      summary: Positive response for Pre-lodged Declaration
+      description: Positive response for Pre-lodged Declaration
+      operationId: messageFRA104
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FRA104AType"
+      responses:
+        "200":
+          description: "Message envoyé avec succès"
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Réponse OK
+        "400":
+          description: "Erreur fonctionnelle sur les données nécessaires à la bonne prise en compte du message par la plateforme d'échange de l opérateur EDI : trame incomplète par exemple."
+
+components:
+  schemas:
+    FRA104AType:
+      type: object
+      description: Positive response for Pre-lodged Declaration
+      properties:
+        messageSender:
+          type: string
+          description: Expéditeur
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        messageRecipient:
+          type: string
+          description: Destinataire
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        preparationDateAndTime:
+          type: string
+          description: Date et heure de préparation
+          minLength: 19
+          maxLength: 19
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}
+        messageIdentification:
+          type: string
+          description: Identification du message
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        messageType:
+          type: string
+          description: Type de message
+          minLength: 6
+          maxLength: 6
+          pattern: ^[a-zA-Z0-9]{6}
+        correlationIdentifier:
+          type: string
+          description: Identifiant de corrélation
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        ExportOperation:
+          $ref: "#/components/schemas/MCceOperationType"
+        CustomsOfficeOfPresentation:
+          $ref: "#/components/schemas/CustomsOfficeOfPresentationType"
+        CustomsOfficeOfExport:
+          $ref: "#/components/schemas/CustomsOfficeOfExportType"
+        SupervisingCustomsOffice:
+          $ref: "#/components/schemas/SupervisingCustomsOfficeType"
+        CustomsOfficesOfDischarge:
+          type: array
+          maxItems: 999
+          items:
+            $ref: "#/components/schemas/CustomsOfficesOfDischargeType"
+        Exporter:
+          $ref: "#/components/schemas/MExporterType"
+        Declarant:
+          $ref: "#/components/schemas/MDeclarantType"
+        Representative:
+          $ref: "#/components/schemas/MRepresentativeType"
+        DeclarationStatus:
+          $ref: "#/components/schemas/DeclarationStatusType"
+        GoodsShipment:
+          $ref: "#/components/schemas/MGoodsShipmentType"
+        GeneralTaxation:
+          $ref: "#/components/schemas/GeneralTaxationType"
+        DetailedTaxation:
+          $ref: "#/components/schemas/DetailedTaxationType"
+        Remarks:
+          type: array
+          maxItems: 999
+          items:
+            $ref: "#/components/schemas/RemarksType"
+
+    SequenceNrContentType:
+      type: number
+      description: Numéro de séquence
+      maxLength: 5
+      pattern: ^[0-9]{1,5}
+
+    IdentificationNumber:
+      type: string
+      description: Numéro d'identification
+      maxLength: 17
+      pattern: ^[a-zA-Z0-9]{1,17}
+
+    MAddressType:
+      type: object
+      description: Adresse
+      properties:
+        streetAndNumber:
+          type: string
+          description: Adresse / Numéro et rue
+          maxLength: 70
+          pattern: ^.{1,70}
+        postcode:
+          type: string
+          description: Adresse / Code postal
+          maxLength: 17
+          pattern: ^.{1,17}
+        city:
+          type: string
+          description: Adresse / Ville
+          maxLength: 35
+          pattern: ^.{1,35}
+        country:
+          type: string
+          description: Adresse / Pays
+          minLength: 2
+          maxLength: 2
+          pattern: ^[A-Z]{2}
+      required:
+        - streetAndNumber
+        - city
+        - country
+
+    MContactPersonType:
+      type: object
+      description: Personne à contacter
+      properties:
+        name:
+          type: string
+          description: Personne à contacter / Nom de la personne
+          maxLength: 70
+          pattern: ^.{1,70}
+        phoneNumber:
+          type: string
+          description: Personne à contacter / Numéro de téléphone
+          maxLength: 35
+          pattern: ^.{1,35}
+        eMailAddress:
+          type: string
+          description: Personne à contacter / Adresse e-mail
+          maxLength: 256
+          pattern: ^[^@]+@[^\.]+\..+
+      required:
+        - name
+        - phoneNumber
+
+    #######################################################
+
+    MCceOperationType:
+      type: object
+      description: Opération d'exportation
+      properties:
+        LRN:
+          type: string
+          description: Numéro de référence interne
+          maxLength: 22
+          pattern: ^[a-zA-Z0-9]{1,22}
+        customsRegistrationNumber:
+          type: number
+          description: Numéro douane de la déclaration
+          minLength: 18
+          maxLength: 18
+          pattern: ^[0-9]{2}[A-Z]{2}[A-Z0-9]{12}[A-E]{1}[0-9]
+        declarationRegistrationDateAndTime:
+          type: string
+          description: Date et heure d'enregistrement de la déclaration
+          minLength: 19
+          maxLength: 19
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}
+        presentationNotificationDueDate:
+          type: string
+          description: Date d'échéance de la notification de présentation
+          minLength: 19
+          maxLength: 19
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}
+        presentationNotificationEstimatedDateAndTime:
+          type: string
+          description: Date prévisionnelle de dépôt de la notification de présentation
+          minLength: 19
+          maxLength: 19
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}
+
+    CustomsOfficeOfPresentationType:
+      type: object
+      description: Bureau de présentation
+      properties:
+        referenceNumber:
+          type: string
+          description: Bureau de présentation / Code bureau
+          minLength: 8
+          maxLength: 8
+          pattern: ^[A-Z]{2}[A-Z0-9]{6}
+
+    CustomsOfficeOfExportType:
+      type: object
+      description: Bureau de douane d'exportation
+      properties:
+        referenceNumber:
+          type: string
+          description: Bureau de douane d'exportation /  Code bureau
+          minLength: 8
+          maxLength: 8
+          pattern: ^[A-Z]{2}[A-Z0-9]{8}
+
+    SupervisingCustomsOfficeType:
+      type: object
+      description: Bureau de contrôle
+      properties:
+        referenceNumber:
+          type: string
+          description: Bureau de contrôle / Code bureau
+          minLength: 8
+          maxLength: 8
+          pattern: ^[A-Z]{2}[A-Z0-9]{6}
+
+    CustomsOfficesOfDischargeType:
+      type: object
+      description: Bureau de douane d'apurement
+      properties:
+        sequenceNumber:
+          $ref: "#/components/schemas/SequenceNrContentType"
+        referenceNumber:
+          type: string
+          description: Bureau de douane d'apurement /  Code bureau
+          minLength: 8
+          maxLength: 8
+          pattern: ^[A-Z]{2}[A-Z0-9]{6}
+
+    MExporterType:
+      type: object
+      description: Exportateur
+      properties:
+        identificationNumber:
+          $ref: "#/components/schemas/IdentificationNumber"
+        name:
+          type: string
+          description: Exportateur / Nom
+          maxLength: 70
+          pattern: ^.{1,70}
+        Address:
+          $ref: "#/components/schemas/MAddressType"
+      required:
+        - identificationNumber
+
+    MDeclarantType:
+      type: object
+      description: Déclarant
+      properties:
+        identificationNumber:
+          $ref: "#/components/schemas/IdentificationNumber"
+        name:
+          type: string
+          description: Déclarant / Nom
+          maxLength: 70
+          pattern: ^.{1,70}
+        Address:
+          $ref: "#/components/schemas/MAddressType"
+        ContactPerson:
+          $ref: "#/components/schemas/MContactPersonType"
+
+    MRepresentativeType:
+      type: object
+      description: Représentant
+      properties:
+        identificationNumber:
+          $ref: "#/components/schemas/IdentificationNumber"
+        status:
+          type: string
+          description: Représentant / Code du statut du représentant
+          minLength: 1
+          maxLength: 1
+          pattern: ^[0-9]{1}
+        ContactPerson:
+          $ref: "#/components/schemas/MContactPersonType"
+
+    DeclarationStatusType:
+      type: object
+      description: Etat de la déclaration
+      properties:
+        state:
+          type: string
+          description: Etat de la déclaration / Code état
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        stateDateTime:
+          type: string
+          description: Etat de la déclaration / Date état
+          minLength: 19
+          maxLength: 19
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}
+        event:
+          type: string
+          description: Etat de la déclaration / Evènement
+          maxLength: 260
+          pattern: ^.{1,260}
+
+    MGoodsShipmentType:
+      type: object
+      description: Données du segment général
+      properties:
+        AdditionalReference:
+          type: array
+          maxItems: 99
+          items:
+            $ref: "#/components/schemas/AdditionalReferenceType"
+        PeriodForDischarge:
+          $ref: "#/components/schemas/PeriodForDischargeType"
+        DetailsOfPlannedActivities:
+          $ref: "#/components/schemas/DetailsOfPlannedActivitiesType"
+
+        IdentificationOfGoods:
+          type: array
+          maxItems: 999
+          items:
+            $ref: "#/components/schemas/IdentificationOfGoodsType"
+        ProcessedProducts:
+          type: array
+          maxItems: 999
+          items:
+            $ref: "#/components/schemas/ProcessedProductsType"
+        GoodsItem:
+          type: array
+          description: Articles de marchandises
+          maxItems: 999
+          items:
+            $ref: "#/components/schemas/MGoodsItemType"
+
+    AdditionalReferenceType:
+      type: object
+      description: Référence complémentaire
+      properties:
+        sequenceNumber:
+          $ref: "#/components/schemas/SequenceNrContentType"
+        type:
+          type: string
+          description: Référence complémentaire / Type
+          minLength: 4
+          maxLength: 4
+          pattern: ^[a-zA-Z0-9]{4}
+        referenceNumber:
+          type: string
+          description: Référence complémentaire / Numéro de référence
+          maxLength: 70
+          pattern: ^.{1,70}
+
+    PeriodForDischargeType:
+      type: object
+      description: Délai d'apurement
+      properties:
+        deadline:
+          type: number
+          description: Délai d'apurement / Durée
+          minLength: 2
+          maxLength: 2
+          pattern: ^[0-9]{2}
+        indicator:
+          type: number
+          description: Délai d'apurement / Indicateur
+          minLength: 1
+          maxLength: 1
+          pattern: ^[0-9]{1}
+        freeText:
+          type: string
+          description: Délai d'apurement / Texte libre
+          maxLength: 512
+          pattern: ^.{1,512}
+
+    DetailsOfPlannedActivitiesType:
+      type: object
+      description: Détail des activités envisagées
+      properties:
+        freeText:
+          type: string
+          description: Détail des activités envisagées / Texte libre
+          maxLength: 512
+          pattern: ^.{1,512}
+
+    IdentificationOfGoodsType:
+      type: object
+      description: Identification des marchandises
+      properties:
+        sequenceNumber:
+          $ref: "#/components/schemas/SequenceNrContentType"
+        code:
+          type: number
+          description: Identification des marchandises / Code
+          minLength: 1
+          maxLength: 1
+          pattern: ^[0-9]{1}
+        freeText:
+          type: string
+          description: Identification des marchandises / Texte libre
+          maxLength: 512
+          pattern: ^.{1,512}
+
+    ProcessedProductsType:
+      type: object
+      description: Produits transformés
+      properties:
+        sequenceNumber:
+          $ref: "#/components/schemas/SequenceNrContentType"
+        descriptionOfGoods:
+          type: string
+          description: Produits transformés / Désignation des marchandises
+          maxLength: 512
+          pattern: ^.{1,512}
+        CommodityCode:
+          type: object
+          description: Code des marchandises
+          properties:
+            harmonizedSystemSubHeadingCode:
+              type: string
+              description: Code des marchandises / Code de sous-position du système harmonisé
+              minLength: 6
+              maxLength: 6
+              pattern: ^[a-zA-Z0-9]{6}
+            combinedNomenclatureCode:
+              type: string
+              description: Code des marchandises / Nomenclature combinée
+              minLength: 2
+              maxLength: 2
+              pattern: ^[a-zA-Z0-9]{2}
+
+        RateOfYield:
+          type: object
+          description: Taux de rendement
+          properties:
+            freeText:
+              type: string
+              description: Taux de rendement / Texte libre
+              maxLength: 512
+              pattern: ^.{1,512}
+
+    MGoodsItemType:
+      type: object
+      description: Articles de marchandises
+      properties:
+        declarationGoodsItemNumber:
+          type: string
+          description: Numéro d'article de marchandise
+          maxLength: 5
+          pattern: ^[1-9]{1}[0-9]{0,4}
+        statisticalValue:
+          type: number
+          description: Valeur statistique
+          minimum: 0
+          maximum: 10000000000000000 #La longueur maximale de ce champ est de 16 caractères, avec un maximum de 2 chiffres pour les décimales (exemples de saisie possible : 1234567890123456 ou 123456789012345,6 ou 12345678901234,56)
+          pattern: ^$
+          exclusiveMinimum: false
+        customsValue:
+          type: number
+          description: Valeur en douane
+          minimum: 0
+          maximum: 10000000000000000 #La longueur maximale de ce champ est de 16 caractères, avec un maximum de 2 chiffres pour les décimales (exemples de saisie possible : 1234567890123456 ou 123456789012345,6 ou 12345678901234,56)
+          pattern: ^$
+          exclusiveMinimum: false
+        Commodity:
+          $ref: "#/components/schemas/MCommodityType"
+        IdentificationOfGoods:
+          type: array
+          maxItems: 999
+          items:
+            $ref: "#/components/schemas/IdentificationOfGoodsType"
+        ProcessedProducts:
+          type: array
+          maxItems: 999
+          items:
+            $ref: "#/components/schemas/ProcessedProductsType"
+        EconomicConditions:
+          type: array
+          maxItems: 999
+          items:
+            $ref: "#/components/schemas/EconomicConditionsType"
+        PlacesOfProcessingOrUse:
+          type: array
+          maxItems: 999
+          items:
+            $ref: "#/components/schemas/PlacesOfProcessingOrUseType"
+
+    MCommodityType:
+      type: object
+      description: Marchandises
+      properties:
+        CalculationOfTaxes:
+          $ref: "#/components/schemas/MCalculationOfTaxesType"
+
+    MCalculationOfTaxesType:
+      type: object
+      description: Calcul des impositions
+      properties:
+        totalDutiesAndTaxesAmount:
+          type: number
+          description: Montant total des droits et impositions
+          minimum: 0
+          maximum: 10000000000000000 #La longueur maximale de ce champ est de 16 caractères, avec un maximum de 2 chiffres pour les décimales (exemples de saisie possible : 1234567890123456 ou 123456789012345,6 ou 12345678901234,56)
+          pattern: ^$
+        DutiesAndTaxe:
+          type: array
+          maxItems: 99
+          items:
+            $ref: "#/components/schemas/MDutiesAndTaxesType"
+
+    MDutiesAndTaxesType:
+      type: object
+      description: Droits et impositions
+      properties:
+        sequenceNumber:
+          $ref: "#/components/schemas/SequenceNrContentType"
+        taxType:
+          type: string
+          description: Droits et impositions / Type de taxe
+          minLength: 3
+          maxLength: 3
+          pattern: ^[a-zA-Z0-9]{3}
+        nationalTaxType:
+          type: string
+          description: Droits et impositions / Code taxe national
+          minLength: 4
+          maxLength: 4
+          pattern: ^[a-zA-Z0-9]{4}
+        payableTaxAmount:
+          type: number
+          description: Droits et impositions / Montant dû
+          minimum: 0
+          maximum: 10000000000000000 #La longueur maximale de ce champ est de 16 caractères, avec un maximum de 2 chiffres pour les décimales (exemples de saisie possible : 1234567890123456 ou 123456789012345,6 ou 12345678901234,56)
+          pattern: ^$
+        methodOfPayment:
+          type: string
+          description: Droits et impositions / Moyen de paiement
+          minLength: 1
+          maxLength: 1
+          pattern: ^[a-zA-Z]{1}
+        TaxBase:
+          type: array
+          maxItems: 99
+          items:
+            $ref: "#/components/schemas/MTaxBaseType"
+
+    MTaxBaseType:
+      type: object
+      description: Base d'imposition
+      properties:
+        sequenceNumber:
+          $ref: "#/components/schemas/SequenceNrContentType"
+        taxRate:
+          type: number
+          description: Base d'imposition / Quotité de la taxe
+          minimum: 0
+          maximum: 100000000000000000 #La longueur maximale de ce champ est de 17 caractères, avec un maximum de 3 chiffres pour les décimales (exemples de saisie possible : 12345678901234567 ou 1234567890123456,7 ou 12345678901234,567)
+          pattern: ^$
+        measurementUnitAndQualifier:
+          type: string
+          description: Base d'imposition / Unité de mesure et qualificateur
+          maxLength: 4
+          pattern: ^[a-zA-Z0-9]{1,4}
+        quantity:
+          type: number
+          description: Base d'imposition / Quantité
+          minimum: 0
+          maximum: 10000000000000000 #La longueur maximale de ce champ est de 16 caractères, avec un maximum de 6 chiffres pour les décimales (exemples de saisie possible : 1234567890123456 ou 12345678901234,12 ou 1234567890,123456)
+          pattern: ^$
+        currency:
+          type: string
+          description: Base d'imposition / Devise
+          minLength: 3
+          maxLength: 3
+          pattern: ^[a-zA-Z]{3}
+        amount:
+          type: number
+          description: Base d'imposition / Montant de la base de l'imposition
+          minimum: 0
+          maximum: 10000000000000000 #La longueur maximale de ce champ est de 16 caractères, avec un maximum de 2 chiffres pour les décimales (exemples de saisie possible : 1234567890123456 ou 123456789012345,6 ou 12345678901234,56)
+          pattern: ^$
+        taxAmount:
+          type: number
+          description: Base d'imposition / Montant de l'imposition
+          minimum: 0
+          maximum: 10000000000000000 #La longueur maximale de ce champ est de 16 caractères, avec un maximum de 2 chiffres pour les décimales (exemples de saisie possible : 1234567890123456 ou 123456789012345,6 ou 12345678901234,56)
+          pattern: ^$
+
+    EconomicConditionsType:
+      type: object
+      description: Conditions économiques
+      properties:
+        sequenceNumber:
+          $ref: "#/components/schemas/SequenceNrContentType"
+        code:
+          type: number
+          description: Conditions économiques / Code
+          maxLength: 2
+          pattern: ^[0-9]{2}
+        freeText:
+          type: string
+          description: Conditions économiques / Texte libre
+          maxLength: 512
+          pattern: ^.{1,512}
+
+    PlacesOfProcessingOrUseType:
+      type: object
+      description: Lieu(x) de perfectionnement, de transformation ou d'utilisation
+      properties:
+        sequenceNumber:
+          $ref: "#/components/schemas/SequenceNrContentType"
+        typeOfLocation:
+          type: string
+          description: Lieu(x) de perfectionnement, de transformation ou d'utilisation / Type de lieu
+          minLength: 1
+          maxLength: 1
+          pattern: ^[a-zA-Z]{1}
+        qualifierOfTheIdentification:
+          type: string
+          description: Lieu(x) de perfectionnement, de transformation ou d'utilisation / Qualifiant d'identification
+          minLength: 1
+          maxLength: 1
+          pattern: ^[a-zA-Z]{1}
+        country:
+          type: string
+          description: Lieu(x) de perfectionnement, de transformation ou d'utilisation / Code pays
+          minLength: 2
+          maxLength: 2
+          pattern: ^[A-Z]{2}
+        Coded:
+          $ref: "#/components/schemas/CodedType"
+        FreeTextDescription:
+          $ref: "#/components/schemas/FreeTextDescriptionType"
+
+    CodedType:
+      type: object
+      description: Codé
+      properties:
+        identificationOfLocation:
+          type: string
+          description: Codé / Identifiant du lieu
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        additionalIdentifier:
+          type: number
+          description: Codé / Identifiant additionnel
+          maxLength: 3
+          pattern: ^[0-9]{1,3}
+
+    FreeTextDescriptionType:
+      type: object
+      description: Texte libre - Description
+      properties:
+        name:
+          type: string
+          description: Texte libre - Description / Nom
+          maxLength: 70
+          pattern: ^.{1,70}
+        streetAndNumber:
+          type: string
+          description: Texte libre - Description / Numéro et rue
+          maxLength: 70
+          pattern: ^.{1,70}
+        postcode:
+          type: string
+          description: Texte libre - Description / Code postal
+          maxLength: 9
+          pattern: ^.{1,9}
+        city:
+          type: string
+          description: Texte libre - Description / Ville
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+
+    GeneralTaxationType:
+      type: object
+      description: Taxation générale
+      properties:
+        DutiesAndTaxesSummaries:
+          $ref: "#/components/schemas/DutiesAndTaxesSummariesType"
+        CoveredRisk:
+          $ref: "#/components/schemas/CoveredRiskType"
+        VAT:
+          $ref: "#/components/schemas/TVAType"
+        TotalPayableTaxAmount:
+          $ref: "#/components/schemas/TotalPayableTaxAmountType"
+
+    DutiesAndTaxesSummariesType:
+      type: object
+      description: Résumés des droits et taxes
+      properties:
+        sequenceNumber:
+          $ref: "#/components/schemas/SequenceNrContentType"
+        taxType:
+          type: string
+          description: Type d'imposition communautaire
+          minLength: 3
+          maxLength: 3
+          pattern: ^[a-zA-Z0-9]{3}
+        nationalTaxType:
+          type: string
+          description: Code taxe national
+          minLength: 4
+          maxLength: 4
+          pattern: ^[a-zA-Z0-9]{4}
+        payableTaxAmount:
+          type: number
+          description: Montant dû
+          minimum: 0
+          maximum: 10000000000000000 #La longueur maximale de ce champ est de 16 caractères, avec un maximum de 2 chiffres pour les décimales (exemples de saisie possible : 1234567890123456 ou 123456789012345,6 ou 12345678901234,56)
+          pattern: ^$
+        taxationStatus:
+          type: string
+          description: Statut de liquidation
+          maxLength: 4
+
+    CoveredRiskType:
+      type: object
+      description: Risque garanti
+      properties:
+        amountCovered:
+          type: number
+          description: Montant couvert
+          minimum: 0
+          maximum: 10000000000000000 #La longueur maximale de ce champ est de 16 caractères, avec un maximum de 2 chiffres pour les décimales (exemples de saisie possible : 1234567890123456 ou 123456789012345,6 ou 12345678901234,56)
+          pattern: ^$
+
+    TVAType:
+      type: object
+      description: TVA
+      properties:
+        VATamountAI2:
+          type: number
+          description: Montant de TVA Ai2
+          minimum: 0
+          maximum: 10000000000000000 #La longueur maximale de ce champ est de 16 caractères, avec un maximum de 2 chiffres pour les décimales (exemples de saisie possible : 1234567890123456 ou 123456789012345,6 ou 12345678901234,56)
+          pattern: ^$
+        reverseChargeVATAmount:
+          type: number
+          description: Montant de TVA autoliquidée
+          minimum: 0
+          maximum: 10000000000000000 #La longueur maximale de ce champ est de 16 caractères, avec un maximum de 2 chiffres pour les décimales (exemples de saisie possible : 1234567890123456 ou 123456789012345,6 ou 12345678901234,56)
+          pattern: ^$
+
+    TotalPayableTaxAmountType:
+      type: object
+      description: Montant total à payer
+      properties:
+        totalPayableTaxAmount:
+          type: number
+          description: Montant total à payer
+          minimum: 0
+          maximum: 10000000000000000 #La longueur maximale de ce champ est de 16 caractères, avec un maximum de 2 chiffres pour les décimales (exemples de saisie possible : 1234567890123456 ou 123456789012345,6 ou 12345678901234,56)
+          pattern: ^$
+        AmountUsed:
+          $ref: "#/components/schemas/AmountUsedType"
+
+    AmountUsedType:
+      type: object
+      description: Montant utilisé
+      properties:
+        guaranteedAmount:
+          type: number
+          description: Montant cautionné (C)
+          minimum: 0
+          maximum: 10000000000000000 #La longueur maximale de ce champ est de 16 caractères, avec un maximum de 2 chiffres pour les décimales (exemples de saisie possible : 1234567890123456 ou 123456789012345,6 ou 12345678901234,56)
+          pattern: ^$
+        unguaranteedAmount:
+          type: number
+          description: Montant non cautionné (NC)
+          minimum: 0
+          maximum: 10000000000000000 #La longueur maximale de ce champ est de 16 caractères, avec un maximum de 2 chiffres pour les décimales (exemples de saisie possible : 1234567890123456 ou 123456789012345,6 ou 12345678901234,56)
+          pattern: ^$
+
+    DetailedTaxationType:
+      type: object
+      description: Taxation détaillée
+      properties:
+        GoodsShipment:
+          $ref: "#/components/schemas/DTGoodsShipmentType"
+
+    DTGoodsShipmentType:
+      type: object
+      description: Données du segment général
+      properties:
+        sequenceNumber:
+          $ref: "#/components/schemas/SequenceNrContentType"
+        GoodsShipmentItem:
+          $ref: "#/components/schemas/DTGoodsShipmentItemType"
+
+    DTGoodsShipmentItemType:
+      type: object
+      description: Articles de marchandises
+      properties:
+        sequenceNumber:
+          $ref: "#/components/schemas/SequenceNrContentType"
+        declarationGoodsItemNumber:
+          type: string
+          description: Numéro d'article de marchandise
+          maxLength: 5
+          pattern: ^[1-9]{1}[0-9]{0,4}
+        DutiesAndTaxes:
+          $ref: "#/components/schemas/MDutiesAndTaxesType"
+
+    RemarksType:
+      type: object
+      description: Remarques
+      properties:
+        sequenceNumber:
+          type: string
+          description: Remarques / Numéro de séquence
+          maxLength: 5
+          pattern: ^[0-9]{1,5}
+        code:
+          type: string
+          description: Remarques / Codes
+          maxLength: 16
+          pattern: ^[a-zA-Z0-9]{1,16}
+        reason:
+          type: string
+          description: Remarques / Motifs
+          maxLength: 512
+          pattern: ^.{1,512}

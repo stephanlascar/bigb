@@ -1,0 +1,261 @@
+openapi: 3.0.3
+info:
+  title: Interface API GUN2 – Opérateurs économiques
+  description: Interface API exposée par GUN2 aux opérateurs économiques pour le dédouanement à l'exportation (Delta-IE)
+  version: 1.0.0
+  contact:
+    name: DGDDI - Douane Française
+    url: https://www.douane.gouv.fr/
+tags:
+  - name: Custom office of Export (Delta) to Declarant /Representative
+paths:
+  /IE582:
+    post:
+      tags:
+        - Custom office of Export (Delta) to Declarant /Representative
+      summary: Request on non exited exportation - Request for information on the exit of goods released for export
+      description: Demande d'information sur la sortie des marchandises ayant reçu la mainlevée pour exportation
+      operationId: messageIE582
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CC582BType"
+      responses:
+        "200":
+          description: "Message envoyé avec succès"
+        "400":
+          description: "Erreur fonctionnelle sur les données nécessaires à la bonne prise en compte du message par la plateforme d'échange de l opérateur EDI : trame incomplète par exemple."
+        "401":
+          description: "Erreur d'authentification"
+        "404":
+          description: "URL inconnue."
+        "500":
+          description: "Erreur technique survenue ne permettant pas de prendre en compte la demande. L'erreur ne dépend pas du type de message."
+
+components:
+  schemas:
+    CC582BType:
+      type: object
+      properties:
+        messageSender:
+          type: string
+          description: Expéditeur
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        messageRecipient:
+          type: string
+          description: Destinataire
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        preparationDateAndTime:
+          type: string
+          description: Date et heure de préparation
+          minLength: 19
+          maxLength: 19
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}
+        messageIdentification:
+          type: string
+          description: Identification du message
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        messageType:
+          type: string
+          description: Type de message
+          minLength: 6
+          maxLength: 6
+          pattern: ^[a-zA-Z0-9]{6}
+        correlationIdentifier:
+          type: string
+          description: Identifiant de corrélation
+          maxLength: 35
+          pattern: ^[a-zA-Z0-9]{1,35}
+        ExportOperation:
+          $ref: "#/components/schemas/MExportOperationType"
+        CustomsOfficeOfExport:
+          $ref: "#/components/schemas/CustomsOfficeOfExportType"
+        CustomsOfficeOfExit:
+          $ref: "#/components/schemas/MCustomsOfficeOfExitType"
+        Exporter:
+          $ref: "#/components/schemas/MExporterType"
+        Declarant:
+          $ref: "#/components/schemas/MDeclarantType"
+        Representative:
+          $ref: "#/components/schemas/MRepresentativeType"
+
+    IdentificationNumber:
+      type: string
+      description: Numéro d'identification
+      maxLength: 17
+      pattern: ^[a-zA-Z0-9]{1,17}
+
+    MAddressType:
+      type: object
+      description: Adresse
+      properties:
+        streetAndNumber:
+          type: string
+          description: Adresse / Numéro et rue
+          maxLength: 70
+          pattern: ^.{1,70}
+        postcode:
+          type: string
+          description: Adresse / Code postal
+          maxLength: 17
+          pattern: ^.{1,17}
+        city:
+          type: string
+          description: Adresse / Ville
+          maxLength: 35
+          pattern: ^.{1,35}
+        country:
+          type: string
+          description: Adresse / Pays
+          minLength: 2
+          maxLength: 2
+          pattern: ^[A-Z]{2}
+      required:
+        - streetAndNumber
+        - city
+        - country
+
+    MContactPersonType:
+      type: object
+      description: Personne à contacter
+      properties:
+        name:
+          type: string
+          description: Personne à contacter / Nom de la personne
+          maxLength: 70
+          pattern: ^.{1,70}
+        phoneNumber:
+          type: string
+          description: Personne à contacter / Numéro de téléphone
+          maxLength: 35
+          pattern: ^.{1,35}
+        eMailAddress:
+          type: string
+          description: Personne à contacter / Adresse e-mail
+          maxLength: 256
+          pattern: ^[^@]+@[^\.]+\..+
+      required:
+        - name
+        - phoneNumber
+
+    #######################################################
+
+    MExportOperationType:
+      type: object
+      description: Opération d'exportation
+      properties:
+        LRN:
+          type: string
+          description: Numéro de référence interne
+          maxLength: 22
+          pattern: ^[a-zA-Z0-9]{1,22}
+        customsRegistrationNumber:
+          type: number
+          description: Numéro douane de la déclaration
+          minLength: 18
+          maxLength: 18
+          pattern: ^[0-9]{2}[A-Z]{2}[A-Z0-9]{12}[A-E]{1}[0-9]
+        MRN:
+          type: number
+          description: MRN
+          minLength: 18
+          maxLength: 18
+          pattern: ^[0-9]{2}[A-Z]{2}[A-Z0-9]{12}[A-E]{1}[0-9]
+        controlNotificationDateAndTime:
+          type: string
+          description: Date et heure de la notification de contrôle
+          minLength: 19
+          maxLength: 19
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}
+        notificationType:
+          type: string
+          description: Type de notification
+          minLength: 1
+          maxLength: 1
+          pattern: ^[0-9]{1}
+        anticipatedControlDate:
+          type: number
+          description: Date de contrôle anticipée
+          minLength: 10
+          maxLength: 10
+          pattern: ^\d{4}-\d{2}-\d{2}
+        text:
+          type: string
+          description: Texte
+          maxLength: 512
+          pattern: ^.{1,512}
+
+    CustomsOfficeOfExportType:
+      type: object
+      description: Bureau de douane d'exportation
+      properties:
+        referenceNumber:
+          type: string
+          description: Bureau de douane d'exportation /  Code bureau
+          minLength: 8
+          maxLength: 8
+          pattern: ^[A-Z]{2}[A-Z0-9]{8}
+
+    MCustomsOfficeOfExitType:
+      type: object
+      description: Bureau de douane de sortie (effectif)
+      properties:
+        referenceNumber:
+          type: string
+          description: Bureau de douane de sortie (effectif) / Code bureau
+          minLength: 8
+          maxLength: 8
+          pattern: ^[A-Z]{2}[A-Z0-9]{6}
+      required:
+        - referenceNumber
+
+    MExporterType:
+      type: object
+      description: Exportateur
+      properties:
+        identificationNumber:
+          $ref: "#/components/schemas/IdentificationNumber"
+        name:
+          type: string
+          description: Exportateur / Nom
+          maxLength: 70
+          pattern: ^.{1,70}
+        Address:
+          $ref: "#/components/schemas/MAddressType"
+      required:
+        - identificationNumber
+
+    MDeclarantType:
+      type: object
+      description: Déclarant
+      properties:
+        identificationNumber:
+          $ref: "#/components/schemas/IdentificationNumber"
+        name:
+          type: string
+          description: Déclarant / Nom
+          maxLength: 70
+          pattern: ^.{1,70}
+        Address:
+          $ref: "#/components/schemas/MAddressType"
+        ContactPerson:
+          $ref: "#/components/schemas/MContactPersonType"
+
+    MRepresentativeType:
+      type: object
+      description: Représentant
+      properties:
+        identificationNumber:
+          $ref: "#/components/schemas/IdentificationNumber"
+        status:
+          type: string
+          description: Représentant / Code du statut du représentant
+          minLength: 1
+          maxLength: 1
+          pattern: ^[0-9]{1}
+        ContactPerson:
+          $ref: "#/components/schemas/MContactPersonType"
